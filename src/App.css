@@ -1,38 +1,101 @@
 .App {
+  background-color: #f0f0ff;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+}
+
+.timelineContainer {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.yearMarker {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  border-left: 1px dotted #aaa;
+}
+
+.todayMarker {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  border-left: 1px solid #f00;
+}
+
+.yearLabel {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  padding: 4px;
+  font: 12px sans-serif;
+  user-select: none;
+}
+
+.eventCollectionBar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 30px;
+  width: 100%;
+  background-color: #aaa;
+  opacity: 0.5;
+}
+
+.eventCollectionTitle {
+  position: absolute;
+  top: 0;
+  left: 5px;
+  height: 30px;
+  font: 24px Georgia;
+  font-variant-caps: all-small-caps;
+  color: #444;
+  font-weight: bold;
+  width: 100%;
   text-align: center;
+  user-select: none;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.eventsContainer {
+  position: absolute;
+  top: 40px;
+  left: 0;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.eventBar {
+  position: absolute;
+  left: 0;
+  top: 0;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+.eventDot {
+  position: absolute;
+  left: 0;
+  top: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  opacity: 0.5;
 }
 
-.App-link {
-  color: #61dafb;
+.eventTitle {
+  user-select: none;
+  cursor: default;
+  position: absolute;
+  top: 0;
+  text-shadow: '0 0 5px white';
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.refreshButton {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  padding: 4px;
+  font: 12px sans-serif;
+  cursor: pointer;
+  user-select: none;
 }
