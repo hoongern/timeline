@@ -189,11 +189,22 @@ function Timeline({
 				if (!state.down) {
 					return;
 				}
-				const delta = state.delta[0];
+				const [panDelta, zoomDelta] = state.delta;
 				const scale =
 					container.current!.offsetWidth / (extent.end.getTime() - extent.start.getTime());
-				const newStart = new Date(extent.start.getTime() - delta / scale);
-				const newEnd = new Date(extent.end.getTime() - delta / scale);
+				let newStart = new Date(extent.start.getTime() - panDelta / scale);
+				let newEnd = new Date(extent.end.getTime() - panDelta / scale);
+
+				const center = state.xy[0] / container.current!.offsetWidth;
+				const zoomScale = 1 + zoomDelta / 250;
+				newStart = new Date(
+					newStart.getTime() - (newEnd.getTime() - newStart.getTime()) * center * (zoomScale - 1),
+				);
+				newEnd = new Date(
+					newEnd.getTime() +
+						(newEnd.getTime() - newStart.getTime()) * (1 - center) * (zoomScale - 1),
+				);
+
 				setExtent({ start: newStart, end: newEnd });
 			},
 		},
