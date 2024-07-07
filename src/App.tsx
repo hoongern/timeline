@@ -62,6 +62,8 @@ function Timeline({
 		return context;
 	}, []);
 
+	const measuredTextCache = useRef(new Map<string, TextMetrics>());
+
 	// Rerender when the window is resized
 	useLayoutEffect(() => {
 		function layout() {
@@ -76,6 +78,17 @@ function Timeline({
 
 			const positionedEventCollections: PositionEventCollection[] = [];
 
+			const measureText = (text: string) => {
+				const cached = measuredTextCache.current.get(text);
+				if (cached) {
+					return cached;
+				}
+
+				const metrics = canvasContext.measureText(text);
+				measuredTextCache.current.set(text, metrics);
+				return metrics;
+			};
+
 			for (const { events, title } of collection) {
 				const positionedEvents: PositionedEvent[] = [];
 				for (const event of events) {
@@ -85,7 +98,7 @@ function Timeline({
 						dotSize / 2 -
 						1;
 
-					const textSize = canvasContext.measureText(event.title);
+					const textSize = measureText(event.title);
 
 					const displayWidth = Math.max(dotSize, eventWidth) + textSize.width + 2 * textPadding;
 
