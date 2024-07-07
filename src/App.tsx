@@ -182,6 +182,35 @@ function Timeline({
 		[dragging, extent.end, extent.start],
 	);
 
+	const [touchPosition, setTouchPosition] = useState<{ x: number; y: number } | undefined>(
+		undefined,
+	);
+
+	const handleTouchStart = useCallback(() => {
+		setDragging(true);
+	}, []);
+
+	const handleTouchEnd = useCallback(() => {
+		setDragging(false);
+		setTouchPosition(undefined);
+	}, []);
+
+	const handleTouchMove = useCallback(
+		(e: React.TouchEvent) => {
+			if (dragging && touchPosition) {
+				const delta = e.touches[0].clientX - touchPosition.x;
+				const scale =
+					container.current!.offsetWidth / (extent.end.getTime() - extent.start.getTime());
+				const newStart = new Date(extent.start.getTime() - delta / scale);
+				const newEnd = new Date(extent.end.getTime() - delta / scale);
+				setExtent({ start: newStart, end: newEnd });
+				e.preventDefault();
+			}
+			setTouchPosition({ x: e.touches[0].clientX, y: e.touches[0].clientY });
+		},
+		[dragging, extent.end, extent.start, touchPosition],
+	);
+
 	const todayLeft =
 		((new Date().getTime() - extent.start.getTime()) /
 			(extent.end.getTime() - extent.start.getTime())) *
@@ -195,6 +224,9 @@ function Timeline({
 			onMouseDown={handleMouseDown}
 			onMouseUp={handleMouseUp}
 			onMouseMove={handleMouseMove}
+			onTouchStart={handleTouchStart}
+			onTouchEnd={handleTouchEnd}
+			onTouchMove={handleTouchMove}
 			style={{
 				cursor: dragging ? 'grabbing' : 'grab',
 			}}
@@ -220,6 +252,7 @@ function Timeline({
 					);
 				},
 			)}
+
 			<div
 				className="todayMarker"
 				style={{
