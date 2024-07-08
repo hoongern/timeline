@@ -14,15 +14,16 @@ export function CSVToArray(csv: string, delimiter = ',') {
 	let matches: RegExpExecArray | null = null;
 
 	while ((matches = objPattern.exec(csv))) {
-		var matchedDelimiter = matches[1];
-		if (matchedDelimiter.length && matchedDelimiter != delimiter) {
+		const matchedDelimiter = matches[1];
+		if (matchedDelimiter.length && matchedDelimiter !== delimiter) {
 			data.push([]);
 		}
 
+		let matchedValue: string;
 		if (matches[2]) {
-			var matchedValue = matches[2].replace(new RegExp('""', 'g'), '"');
+			matchedValue = matches[2].replace(new RegExp('""', 'g'), '"');
 		} else {
-			var matchedValue = matches[3];
+			matchedValue = matches[3];
 		}
 
 		data[data.length - 1].push(matchedValue);
