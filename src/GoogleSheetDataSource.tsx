@@ -32,7 +32,7 @@ export const useGoogleSheetData = (): [
 	);
 
 	const fetchData = React.useCallback(() => {
-		if (isFetched || sheetData?.data) {
+		if (isFetched || !source || sheetData?.data) {
 			return;
 		}
 
