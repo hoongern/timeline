@@ -36,9 +36,9 @@ interface PositionedEvent {
 	lane: number;
 }
 
-const font = '16px Georgia';
-const dotSize = 20;
-const textPadding = 4;
+const font = '14px Georgia';
+const dotSize = 16;
+const textPadding = 3;
 
 function Timeline({
 	collection,
