@@ -2,7 +2,7 @@ import React, { useCallback, useLayoutEffect, useMemo, useRef, useState } from '
 import './App.css';
 import { useGoogleSheetData, SetupGoogleSheet } from './GoogleSheetDataSource';
 import { CSVToArray } from './csv';
-import { useDrag, useGesture } from '@use-gesture/react';
+import { useGesture } from '@use-gesture/react';
 
 interface Event {
 	title: string;
