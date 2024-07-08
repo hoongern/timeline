@@ -49,6 +49,10 @@
   opacity: 0.5;
 }
 
+.eventCollectionContainer {
+  overflow: clip;
+}
+
 .eventCollectionTitle {
   position: absolute;
   top: 0;

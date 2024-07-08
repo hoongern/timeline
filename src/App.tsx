@@ -296,7 +296,8 @@ function Timeline({
 			{eventPositions.map((collection, i) => (
 				<div
 					key={collection.title}
-					style={{ position: 'relative', top: `${(i / eventPositions.length) * 100}%` }}
+					className="eventCollectionContainer"
+					style={{ position: 'relative', height: `${100 / eventPositions.length}%` }}
 				>
 					<div className="eventCollectionBar" />
 					<div className="eventCollectionTitle">{collection.title}</div>
