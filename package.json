@@ -12,6 +12,7 @@
 		"@types/react": "^18.3.3",
 		"@types/react-dom": "^18.3.0",
 		"@use-gesture/react": "^10.3.1",
+		"framer-motion": "^11.2.13",
 		"prettier": "^3.3.2",
 		"react": "^18.3.1",
 		"react-cookie": "^7.1.4",

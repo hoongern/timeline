@@ -3,6 +3,7 @@ import './App.css';
 import { useGoogleSheetData, SetupGoogleSheet } from './GoogleSheetDataSource';
 import { CSVToArray } from './csv';
 import { useGesture } from '@use-gesture/react';
+import { motion } from 'framer-motion';
 
 interface Event {
 	title: string;
@@ -304,14 +305,15 @@ function Timeline({
 					<div className="eventsContainer">
 						{collection.positionedEvents.map(
 							({ left, eventWidth, displayWidth, height, top, event }) => (
-								<div
+								<motion.div
+									animate={{ y: top }}
+									transition={{ ease: 'easeInOut', duration: 0.25 }}
 									key={event.title + event.start.toISOString()}
 									style={{
 										position: 'absolute',
 										left,
 										width: displayWidth,
 										height,
-										top,
 									}}
 								>
 									{event.end ? (
@@ -352,7 +354,7 @@ function Timeline({
 									>
 										{event.title}
 									</span>
-								</div>
+								</motion.div>
 							),
 						)}
 					</div>
