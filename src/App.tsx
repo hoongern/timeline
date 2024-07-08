@@ -47,6 +47,29 @@ function Timeline({
 	collection: EventCollection[];
 	refreshData: () => void;
 }) {
+	const sortedCollection = useMemo(
+		() =>
+			collection.map(({ title, events }) => ({
+				title,
+				events: events.sort((a, b) => {
+					if (a.color && b.color && a.color < b.color) {
+						return -1;
+					}
+					if (a.color && b.color && a.color > b.color) {
+						return 1;
+					}
+					if (a.start < b.start) {
+						return -1;
+					}
+					if (a.start > b.start) {
+						return 1;
+					}
+					return 0;
+				}),
+			})),
+		[collection],
+	);
+
 	const [extent, setExtent] = useState(calculateExtent(collection));
 	const [eventPositions, setEventPositions] = useState<PositionEventCollection[]>([]);
 	const [dragging, setDragging] = useState(false);
@@ -89,7 +112,7 @@ function Timeline({
 				return metrics;
 			};
 
-			for (const { events, title } of collection) {
+			for (const { events, title } of sortedCollection ?? []) {
 				const positionedEvents: PositionedEvent[] = [];
 				for (const event of events) {
 					const left = (event.start.getTime() - extent.start.getTime()) * scale - dotSize / 2 + 1;
@@ -154,7 +177,7 @@ function Timeline({
 		return () => {
 			observer.disconnect();
 		};
-	}, [extent.end, extent.start, canvasContext, collection]);
+	}, [extent.end, extent.start, canvasContext, sortedCollection]);
 
 	const handleWheel = useCallback(
 		(e: React.WheelEvent) => {
