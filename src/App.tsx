@@ -124,7 +124,10 @@ function Timeline({
 
 					const textSize = measureText(event.title);
 
-					const displayWidth = Math.max(dotSize, eventWidth) + textSize.width + 2 * textPadding;
+					const displayWidth = Math.max(
+						Math.max(dotSize, eventWidth),
+						dotSize + textSize.width + 2 * textPadding,
+					);
 
 					// Find lanes which contained colored events
 					const coloredLanes = new Set(
