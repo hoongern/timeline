@@ -1,6 +1,6 @@
 import React, { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import './App.css';
-import { useGoogleSheetData, SetupGoogleSheet } from './GoogleSheetDataSource';
+import { useGoogleSheetData, Setup } from './GoogleSheetDataSource';
 import { CSVToArray } from './csv';
 import { useGesture } from '@use-gesture/react';
 import { motion } from 'framer-motion';
@@ -46,7 +46,7 @@ function Timeline({
 	refreshData,
 }: {
 	collection: EventCollection[];
-	refreshData: () => void;
+	refreshData: ({ clearSource }: { clearSource?: boolean }) => void;
 }) {
 	const sortedCollection = useMemo(
 		() =>
@@ -363,9 +363,14 @@ function Timeline({
 					</div>
 				</div>
 			))}
-			<button className="refreshButton" onClick={refreshData}>
-				Refresh
-			</button>
+			<div className="controls">
+				<button className="refreshButton" onClick={() => refreshData({ clearSource: false })}>
+					Refresh document
+				</button>
+				<button className="refreshButton" onClick={() => refreshData({ clearSource: true })}>
+					Change Google Document
+				</button>
+			</div>
 		</div>
 	);
 }
@@ -399,8 +404,8 @@ function TimelineProvider() {
 
 	const collections: EventCollection[] | undefined = React.useMemo(
 		() =>
-			googleSheet &&
-			Object.entries(googleSheet).map(([title, data]) => {
+			googleSheet?.data &&
+			Object.entries(googleSheet.data).map(([title, data]) => {
 				const events = CSVToArray(data).map((parts) => {
 					const [start, end, color, title] = parts;
 
@@ -434,11 +439,25 @@ function TimelineProvider() {
 }
 
 function App() {
+	const [sheetData] = useGoogleSheetData();
+
+	if (!sheetData || sheetData.error) {
+		return (
+			<Setup
+				error={sheetData?.error}
+				onCookieSet={() => {
+					window.location.reload();
+				}}
+			/>
+		);
+	}
+
+	if (!sheetData.data) {
+		return <div>Loading...</div>;
+	}
 	return (
 		<div className="App">
-			<SetupGoogleSheet>
-				<TimelineProvider />
-			</SetupGoogleSheet>
+			<TimelineProvider />
 		</div>
 	);
 }
