@@ -195,7 +195,11 @@ export const Setup: React.FC<{ onCookieSet: () => void; error?: string }> = ({
 						))}
 					</label>
 				</div>
-				<button type="submit" className="setupSubmit">
+				<button
+					type="submit"
+					className="setupSubmit"
+					disabled={!documentIdValue || (sheetNamesValue.length === 1 && !sheetNamesValue[0])}
+				>
 					Submit
 				</button>
 			</form>
