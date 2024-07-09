@@ -73,7 +73,7 @@ export const useGoogleSheetData = (): [
 					{} as NonNullable<GoogleSheetData['data']>,
 				);
 
-				localStorage.setItem('sheetData', JSON.stringify(data));
+				localStorage.setItem('sheetData', JSON.stringify({ data }));
 				setSheetData({
 					data,
 				});
