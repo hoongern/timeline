@@ -56,6 +56,13 @@
 	padding: 10px 20px;
 	border: 1px solid #ccc;
 	border-radius: 5px;
-	background-color: #f0f0f0;
+	background-color: #b2c8ff;
+	color: #000;
 	cursor: pointer;
+}
+
+.setupSubmit:disabled {
+	background-color: #eee;
+	color: #bbb;
+	cursor: not-allowed;
 }
