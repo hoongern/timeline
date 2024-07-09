@@ -310,9 +310,14 @@ function Timeline({
 					<div className="eventCollectionBar" />
 					<div className="eventCollectionTitle">{collection.title}</div>
 					<div className="eventsContainer">
-						{collection.positionedEvents.map(
-							({ left, eventWidth, displayWidth, height, top, event, textWidth }) => (
+						{collection.positionedEvents
+							.filter(
+								({ left, displayWidth }) =>
+									left + displayWidth > 0 && left < container.current!.offsetWidth,
+							)
+							.map(({ left, eventWidth, displayWidth, height, top, event, textWidth }) => (
 								<motion.div
+									initial={{ y: top }}
 									animate={{ y: top }}
 									transition={{ ease: 'easeInOut', duration: 0.25 }}
 									key={event.title + event.start.toISOString()}
@@ -371,8 +376,7 @@ function Timeline({
 										{event.title}
 									</span>
 								</motion.div>
-							),
-						)}
+							))}
 					</div>
 				</div>
 			))}
