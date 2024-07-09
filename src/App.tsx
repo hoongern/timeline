@@ -31,6 +31,7 @@ interface PositionedEvent {
 	left: number;
 	eventWidth: number;
 	displayWidth: number;
+	textWidth: number;
 	height: number;
 	top: number;
 	event: Event;
@@ -40,6 +41,8 @@ interface PositionedEvent {
 const font = '14px Georgia';
 const dotSize = 16;
 const textPadding = 3;
+
+const halfDotSize = dotSize / 2;
 
 function Timeline({
 	collection,
@@ -116,10 +119,10 @@ function Timeline({
 			for (const { events, title } of sortedCollection ?? []) {
 				const positionedEvents: PositionedEvent[] = [];
 				for (const event of events) {
-					const left = (event.start.getTime() - extent.start.getTime()) * scale - dotSize / 2 + 1;
+					const left = (event.start.getTime() - extent.start.getTime()) * scale - halfDotSize + 1;
 					const eventWidth =
 						((event.end ?? event.start).getTime() - event.start.getTime()) * scale +
-						dotSize / 2 -
+						halfDotSize -
 						1;
 
 					const textSize = measureText(event.title);
@@ -156,6 +159,7 @@ function Timeline({
 						left,
 						displayWidth,
 						eventWidth: Math.max(dotSize, eventWidth),
+						textWidth: textSize.width,
 						height: dotSize,
 						top: lane * (dotSize + textPadding * 2),
 						event,
@@ -307,7 +311,7 @@ function Timeline({
 					<div className="eventCollectionTitle">{collection.title}</div>
 					<div className="eventsContainer">
 						{collection.positionedEvents.map(
-							({ left, eventWidth, displayWidth, height, top, event }) => (
+							({ left, eventWidth, displayWidth, height, top, event, textWidth }) => (
 								<motion.div
 									animate={{ y: top }}
 									transition={{ ease: 'easeInOut', duration: 0.25 }}
@@ -352,7 +356,16 @@ function Timeline({
 										className="eventTitle"
 										style={{
 											font,
-											left: dotSize + textPadding,
+											left: (() => {
+												if (!event.end || textWidth > eventWidth || left > -halfDotSize) {
+													return dotSize + textPadding;
+												}
+
+												const calculatedLeft = -left + halfDotSize + textPadding;
+												const maximumLeft = eventWidth - textWidth - halfDotSize;
+
+												return Math.min(calculatedLeft, maximumLeft);
+											})(),
 										}}
 									>
 										{event.title}
