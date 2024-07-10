@@ -19,7 +19,10 @@
 	position: absolute;
 	top: 0;
 	height: 100%;
-	border-left: 1px dotted #aaa;
+}
+
+.yearMarker.even {
+	background: #e0e0ff;
 }
 
 .todayMarker {
@@ -37,6 +40,25 @@
 	font: 12px sans-serif;
 	user-select: none;
 	transform: rotate(-90deg);
+	font-weight: bold;
+}
+
+.monthMarker {
+	position: absolute;
+	top: 0;
+	height: 100%;
+	border-left: 1px dotted #ccc;
+}
+
+.monthLabel {
+	position: absolute;
+	bottom: 10px;
+	left: -4px;
+	padding: 0;
+	font: 12px sans-serif;
+	user-select: none;
+	transform: rotate(-90deg);
+	color: #bbb;
 }
 
 .eventCollectionBar {

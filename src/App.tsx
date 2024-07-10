@@ -255,10 +255,14 @@ function Timeline({
 		{ drag: {} },
 	);
 
-	const todayLeft =
-		((new Date().getTime() - extent.start.getTime()) /
-			(extent.end.getTime() - extent.start.getTime())) *
+	const extentWidth = extent.end.getTime() - extent.start.getTime();
+	const todayLeft = ((new Date().getTime() - extent.start.getTime()) / extentWidth) * 100;
+	const yearMarkerWidth =
+		((new Date(extent.start.getFullYear() + 1, 0, 1).getTime() -
+			new Date(extent.start.getFullYear(), 0, 1).getTime()) /
+			extentWidth) *
 		100;
+	const yearMarkerWidthPixels = (yearMarkerWidth / 100) * (container.current?.offsetWidth ?? 0);
 
 	return (
 		<div
@@ -276,6 +280,11 @@ function Timeline({
 			{Array.from({ length: extent.end.getFullYear() - extent.start.getFullYear() + 2 }).map(
 				(_, i) => {
 					const year = extent.start.getFullYear() + i;
+					const skipYears = yearMarkerWidthPixels < 20;
+					if (skipYears && year % 5 !== 0) {
+						return null;
+					}
+
 					const left =
 						((new Date(year, 0, 1).getTime() - extent.start.getTime()) /
 							(extent.end.getTime() - extent.start.getTime())) *
@@ -283,13 +292,34 @@ function Timeline({
 					return (
 						<div
 							key={year}
-							className="yearMarker"
+							className={`yearMarker ${year % 2 === 0 ? 'even' : 'odd'}`}
 							style={{
 								left: `${left}%`,
-								width: `${100 / (extent.end.getFullYear() - extent.start.getFullYear() + 1)}%`,
+								width: `${skipYears ? yearMarkerWidth * 5 : yearMarkerWidth}%`,
 							}}
 						>
 							<div className="yearLabel">{year}</div>
+							{yearMarkerWidthPixels > 100 &&
+								Array.from({ length: 11 }).map((_, i) => {
+									if (yearMarkerWidthPixels < 240 && (i + 1) % 3 !== 0) {
+										return null;
+									}
+
+									const month = new Date(year, i + 1, 1);
+									return (
+										<div
+											key={year + month.toISOString()}
+											className="monthMarker"
+											style={{
+												left: `${((i + 1) / 12) * 100}%`,
+											}}
+										>
+											<div className="monthLabel">
+												{month.toLocaleString('default', { month: 'short' })}
+											</div>
+										</div>
+									);
+								})}
 						</div>
 					);
 				},
