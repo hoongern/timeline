@@ -34,15 +34,7 @@ export const useGoogleSheetData = (): [
 	useEffect(() => {
 		const url = new URL(window.location.href);
 		const documentId = url.searchParams.get('documentId');
-		const sheetNames: string[] = [];
-		for (let i = 0; i < 100; i++) {
-			const sheetName = url.searchParams.get(`sheet${i}`);
-			if (sheetName) {
-				sheetNames.push(sheetName);
-			} else {
-				break;
-			}
-		}
+		const sheetNames = url.searchParams.get('sheets')?.split(',') || [];
 		if (documentId && sheetNames.length) {
 			setCookie(
 				sheetSourceCookie,
@@ -100,9 +92,7 @@ export const useGoogleSheetData = (): [
 
 				const url = new URL(window.location.href);
 				url.searchParams.set('documentId', source.documentId);
-				source.sheetNames.forEach((sheetName, index) => {
-					url.searchParams.set(`sheet${index}`, sheetName);
-				});
+				url.searchParams.set(`sheets`, source.sheetNames.join(','));
 				window.history.replaceState({}, '', url.toString());
 
 				setSheetData({
@@ -123,6 +113,10 @@ export const useGoogleSheetData = (): [
 			localStorage.removeItem('sheetData');
 			if (clearSource) {
 				setCookie(sheetSourceCookie, null);
+				const url = new URL(window.location.href);
+				url.searchParams.delete('documentId');
+				url.searchParams.delete('sheets');
+				window.history.replaceState({}, '', url.toString());
 			} else {
 				fetchData();
 			}
