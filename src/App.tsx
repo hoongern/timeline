@@ -189,17 +189,29 @@ function Timeline({
 
 	const handleWheel = useCallback(
 		(e: React.WheelEvent) => {
-			const delta = e.deltaY;
-			const scale = 1 + delta / 1000;
-			const center = e.clientX / container.current!.offsetWidth;
-			const newStart = new Date(
-				extent.start.getTime() -
-					(extent.end.getTime() - extent.start.getTime()) * center * (scale - 1),
-			);
-			const newEnd = new Date(
-				extent.end.getTime() +
-					(extent.end.getTime() - extent.start.getTime()) * (1 - center) * (scale - 1),
-			);
+			let newStart = extent.start;
+			let newEnd = extent.end;
+			if (e.deltaY !== 0) {
+				const delta = e.deltaY;
+				const scale = 1 + delta / 1000;
+				const center = e.clientX / container.current!.offsetWidth;
+				newStart = new Date(
+					extent.start.getTime() -
+						(extent.end.getTime() - extent.start.getTime()) * center * (scale - 1),
+				);
+				newEnd = new Date(
+					extent.end.getTime() +
+						(extent.end.getTime() - extent.start.getTime()) * (1 - center) * (scale - 1),
+				);
+			}
+
+			if (e.deltaX !== 0) {
+				const delta = e.deltaX;
+				const scale =
+					container.current!.offsetWidth / (extent.end.getTime() - extent.start.getTime());
+				newStart = new Date(extent.start.getTime() - delta / scale);
+				newEnd = new Date(extent.end.getTime() - delta / scale);
+			}
 			setExtent({ start: newStart, end: newEnd });
 		},
 		[extent.end, extent.start],
