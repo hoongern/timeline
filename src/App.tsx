@@ -4,6 +4,7 @@ import { useGoogleSheetData, Setup } from './GoogleSheetDataSource';
 import { CSVToArray } from './csv';
 import { useGesture } from '@use-gesture/react';
 import { motion } from 'framer-motion';
+import { useInertia } from './inertia';
 
 interface Event {
 	title: string;
@@ -187,84 +188,65 @@ function Timeline({
 		};
 	}, [extent.end, extent.start, canvasContext, sortedCollection]);
 
+	const calculateNewPan = useCallback((delta: number, start: Date, end: Date) => {
+		const scale = container.current!.offsetWidth / (end.getTime() - start.getTime());
+		const newStart = new Date(start.getTime() - delta / scale);
+		const newEnd = new Date(end.getTime() - delta / scale);
+		return { start: newStart, end: newEnd };
+	}, []);
+
+	const calculateNewZoom = useCallback((delta: number, center: number, start: Date, end: Date) => {
+		const scale = 1 + delta / 1000;
+		const newStart = new Date(
+			start.getTime() - (end.getTime() - start.getTime()) * center * (scale - 1),
+		);
+		const newEnd = new Date(
+			end.getTime() + (end.getTime() - start.getTime()) * (1 - center) * (scale - 1),
+		);
+		return { start: newStart, end: newEnd };
+	}, []);
+
+	const [beginInertia, endInertia] = useInertia((delta) => {
+		setExtent(({ start, end }) => calculateNewPan(delta, start, end));
+	});
+
 	const handleWheel = useCallback(
 		(e: React.WheelEvent) => {
-			let newStart = extent.start;
-			let newEnd = extent.end;
 			if (e.deltaY !== 0) {
-				const delta = e.deltaY;
-				const scale = 1 + delta / 1000;
-				const center = e.clientX / container.current!.offsetWidth;
-				newStart = new Date(
-					extent.start.getTime() -
-						(extent.end.getTime() - extent.start.getTime()) * center * (scale - 1),
-				);
-				newEnd = new Date(
-					extent.end.getTime() +
-						(extent.end.getTime() - extent.start.getTime()) * (1 - center) * (scale - 1),
+				setExtent(({ start, end }) =>
+					calculateNewZoom(e.deltaY, e.clientX / container.current!.offsetWidth, start, end),
 				);
 			}
-
-			if (e.deltaX !== 0) {
-				const delta = e.deltaX;
-				const scale =
-					container.current!.offsetWidth / (extent.end.getTime() - extent.start.getTime());
-				newStart = new Date(extent.start.getTime() - delta / scale);
-				newEnd = new Date(extent.end.getTime() - delta / scale);
-			}
-			setExtent({ start: newStart, end: newEnd });
 		},
-		[extent.end, extent.start],
-	);
-
-	const handleMouseDown = useCallback(() => {
-		setDragging(true);
-	}, []);
-
-	const handleMouseUp = useCallback(() => {
-		setDragging(false);
-	}, []);
-
-	const handleMouseMove = useCallback(
-		(e: React.MouseEvent) => {
-			if (dragging) {
-				const delta = e.movementX;
-				const scale =
-					container.current!.offsetWidth / (extent.end.getTime() - extent.start.getTime());
-				const newStart = new Date(extent.start.getTime() - delta / scale);
-				const newEnd = new Date(extent.end.getTime() - delta / scale);
-				setExtent({ start: newStart, end: newEnd });
-			}
-		},
-		[dragging, extent.end, extent.start],
+		[calculateNewZoom],
 	);
 
 	const bind = useGesture(
 		{
 			onDrag: (state) => {
 				if (!state.down) {
+					beginInertia(state.velocity[0] * state.direction[0] * 10);
+					setDragging(false);
 					return;
 				}
-				const [panDelta, zoomDelta] = state.delta;
-				const scale =
-					container.current!.offsetWidth / (extent.end.getTime() - extent.start.getTime());
-				let newStart = new Date(extent.start.getTime() - panDelta / scale);
-				let newEnd = new Date(extent.end.getTime() - panDelta / scale);
 
-				const center = state.xy[0] / container.current!.offsetWidth;
-				const zoomScale = 1 + zoomDelta / 250;
-				newStart = new Date(
-					newStart.getTime() - (newEnd.getTime() - newStart.getTime()) * center * (zoomScale - 1),
-				);
-				newEnd = new Date(
-					newEnd.getTime() +
-						(newEnd.getTime() - newStart.getTime()) * (1 - center) * (zoomScale - 1),
-				);
+				setDragging(true);
 
-				setExtent({ start: newStart, end: newEnd });
+				endInertia();
+
+				setExtent(({ start, end }) => {
+					const [panDelta, zoomDelta] = state.delta;
+					let { start: newStart, end: newEnd } = calculateNewPan(panDelta, start, end);
+					return calculateNewZoom(
+						zoomDelta * 2,
+						state.xy[0] / container.current!.offsetWidth,
+						newStart,
+						newEnd,
+					);
+				});
 			},
 		},
-		{ drag: {} },
+		{ drag: { pointer: { mouse: true }, axis: 'lock' } },
 	);
 
 	const extentWidth = extent.end.getTime() - extent.start.getTime();
@@ -281,9 +263,6 @@ function Timeline({
 			className="timelineContainer"
 			ref={container}
 			onWheel={handleWheel}
-			onMouseDown={handleMouseDown}
-			onMouseUp={handleMouseUp}
-			onMouseMove={handleMouseMove}
 			style={{
 				cursor: dragging ? 'grabbing' : 'grab',
 			}}
